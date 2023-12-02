@@ -4,64 +4,124 @@
 
 
 
-class Events
-{
-private:
-	const int events_id;
-	static int events_nr;
-	string events_name;
+
+    class Events {
+    private:
+        int maxSeats;
+        int numRows;
+        int numZones;
+        int seatsPerRow;
+
+        static int totalEventLocations;
+
+    public:
+        char* charVector;
+        int* numericVector;
+
+        Events();
+        Events(int maxSeats, int numRows, int numZones, int seatsPerRow);
+        Events(const Events& other);
+        ~Events();
+
+     
+        int getMaxSeats() {
+            return this->maxSeats;
+        }
+        void setMaxSeats(int seats);
+        int getNumRows() {
+            return this->numRows;
+        }
+        void setNumRows(int rows);
+        int getNumZones() {
+            return this->numZones;
+        }
+        void setNumZones(int zones);
+        int getSeatsPerRow() {
+            return this->seatsPerRow;
+        }
 
 
+        void setSeatsPerRow(int seats);
+
+ 
+
+        Events& operator=(const Events& other);
+        friend ostream& operator<<(ostream& os, const Events& eventLocation);
+        friend istream& operator>>(istream& is, Events& eventLocation);
+    };
+    int totalEvents = 0;
+
+    Events() {
+        maxSeats = 0;
+        numRows = 0;
+        numZones = 0;
+        seatsPerRow = 0;
+        charVector = new vector char();
+        numericVector = new vector int();
+        totalEvents++;
+    }
+
+    Events(int maxSeats, int numRows, int numZones, int seatsPerRow) {
+        this->maxSeats = maxSeats;
+        this->numRows = numRows;
+        this->numZones = numZones;
+        this->seatsPerRow = seatsPerRow;
+        charVector = new vector char();
+        numericVector = new vector int();
+        totalEventLocations++;
+    }
+
+    Events(const Events& other) {
+        maxSeats = this->maxSeats;
+        numRows = this->numRows;
+        numZones = this->numZones;
+        seatsPerRow = this->seatsPerRow;
+        charVector = new vector char(*other.charVector);
+        numericVector = new vector int(*other.numericVector);
+        totalEventLocations++;
+    }
+
+    ~Events() {
+        delete charVector;
+        delete numericVector;
+        totalEvents--;
+    }
+
+    int Events::getMaxSeats() const {
+        return maxSeats;
+    }
+
+    void Events::setMaxSeats(int seats) {
+        if (seats > 0) {
+            maxSeats = seats;
+        }
+        else {
+            std::cerr << "Invalid input for maxSeats.\n";
+        }
+    }
 
 
+    // Generic methods
+    void Events::processEvents() {
+        // Implement your processing logic here
+    }
 
-	int tickets_available;
-	double tickets_prices;
+    void Events::displayEventsDetails() const {
+        std::cout << "Location Details:\n";
+        std::cout << "Max Seats: " << maxSeats << "\n";
+        // Display other details
+    }
 
-	//getters
-	std::string* getEvents()
-	{
-		std::string* copy = new std::string[this->events_nr];
-		for (int i = 0; i < this->events_nr; i++)
-		{
-			copy[i] = this->events_nr[i];
-		}
-		return copy;
-		return events_nr;
-	}
-	int get()
-	{
-		return this->events_nr;
-	}
+    ostream& operator<<(ostream& os, const Events& eventLocation) {
+        os << "Max Seats: " << eventLocation.maxSeats << "\n";
+        // Output other details
+        return os;
+    }
 
-	tickets_available getTicketsAvailable()
-	{
-		return this->tickets_prices;
-	}
-public:
-	Events()
-
-    {
-		this->events_name = new char[strlen("match name") + 1];
-		strcpy_s(this->events_name, strlen("match name") + 1, "match name");
-
-		this->events_id = other;
-	}
-
-	Events(const char* _name, string _date, string _time) {
-		if (events_name != nullptr && strlen(events_name) > 1)
-		{
-			this->events_name = new char[strlen(events_name) + 1];
-			strcpy_s(this->events_name, strlen(name) + 1, name);
-		}
-		else
-		{
-			cout << "Enter a valid event name:";
-
-		}
-		
-	}
-};
+    istream& operator>>(istream& is, Events& eventLocation) {
+        // Input logic for EventLocation
+        return is;
+    }
 
 
 class Tickets
