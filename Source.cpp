@@ -12,6 +12,29 @@
      
 
  public:
+    
+     bool isValidDateFormat(const std::string& value) {
+         if (value.size() != 10 || value[2] != '-' || value[5] != '-') {
+             return false;
+         }
+
+         for (int i : {0, 1, 3, 4, 6, 7, 8, 9}) {
+             if (!std::isdigit(value[i])) {
+                 return false;
+             }
+         }
+
+         int d = std::stoi(value.substr(0, 2));
+         int m = std::stoi(value.substr(3, 2));
+         int y = std::stoi(value.substr(6, 4));
+
+         if (m < 1 || m > 12 || d < 1 || d > 31) {
+             return false;
+         }
+
+         return true;
+     }
+
      Event() {
          this->eventName =" ";
          this->eventDate = " ";
@@ -35,8 +58,12 @@
          return this->eventDate;
      }
 
-     void setEventDate(string eventDate) {
-         this->eventDate = eventDate;
+     void setEventDate(const string& newDate) {
+         if (isValidDateFormat(newDate)) {
+             this->eventDate = newDate;
+         }
+         else
+             throw exception("The string has an invalid date format.");
      }
 
      string getEventLocation() {
@@ -47,11 +74,30 @@
          this->eventLocation = eventLocation;
      }
 
+     void setLocationName(const string location) {
+         if (location.length() < 3 || location.length() > 20) {
+             throw exception("You entered an invalid string");
+         };
+         this->eventLocation = location;
+     }
+
+     void printEventDetails() {
+         cout << "The event is named:" << getEventName() << endl;
+         cout << "The event is on the:" << getEventDate() << endl;
+         cout << "The event is at:" << getEventLocation() << endl;
+     }
+
      Event& operator=(const Event& other);
      friend ostream& operator<<(ostream& os, const Event& eventLocation);
      friend istream& operator>>(istream& is, Event& eventLocation);
      int totalEvents = 0;
 
+     friend bool operator!(const Event& e) {
+         if (e.eventLocation !=" ")
+             return true;
+         else
+             return false;
+     }
 
      ~Event() {
          this->eventName=" ";
@@ -155,18 +201,27 @@
 
      void printLocationDetails() {
          cout << "The location name is: " << getLocationName() << endl;
-         cout << "The location has " << getNumZones() << " zones: ";
+         cout << "The location has:" << getNumZones() << " zones" << endl;
+         cout << "The location has:" << getNumRows() << "rows" << endl;
+         cout << "The location has:" << getSeats() << "seats" << endl;
+         cout << "Every row has:" << getSeatsPerRow() << "seats" << endl;
      }
 
 
 
      Location& operator=(const Location& other);
-     friend ostream& operator<<(ostream& os, const Location& eventLocation);
-     friend istream& operator>>(istream& is, Location& eventLocation);
+     friend ostream& operator<<(ostream& os, const Location& eventLocations);
+     friend istream& operator>>(istream& is, Location& eventLocations);
      int totalEvents = 0;
 
-
-
+     friend bool operator!(const Location& l) {
+         if (l.locationName != " ") {
+             return true;
+         }
+         else {
+             return false;
+         }
+     }
 
 
      Location(const Location& other) {
@@ -258,6 +313,10 @@ public:
         strcpy_s(this->ticketType, ticketType.size() + 1, ticketType.c_str());
     }
 
+    int getRowNo() {
+        return this->rowNo;
+    }
+    
     void setRowNo(int rowNo) {
         if (rowNo < 1 || rowNo>10) {
             throw exception("This row does not exist!");
@@ -265,11 +324,19 @@ public:
         this->rowNo = rowNo;
     }
 
+    int getSeatNo() {
+        return this->seatNo;
+    }
+
     void setSeatNo(int seatNo) {
         if (seatNo < 1 || seatNo>15) {
             throw exception("This seat does not exist!");
         }
         this->seatNo = seatNo;
+    }
+
+    int getPrice() {
+        return this->price;
     }
 
     void setPrice(int price) {
@@ -293,6 +360,24 @@ public:
     bool operator==(const Ticket& other) const;
     Ticket operator++();
     Ticket operator--(int);
+
+    friend bool operator!(const Ticket& t) {
+        if (t.ticketType != nullptr) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+
+    void printTicketDetails() {
+        cout << "The ticket id is: " << getTicketId() << endl;
+        cout << "The ticket type is:" << getTicketType() << endl;
+        cout << "The ticket price is:" << getPrice() << endl;
+        cout << "The row number is:" << getRowNo() << endl;
+        cout << "The seat number is:" << getSeatNo() << endl;
+    }
 
     ~Ticket() {
         if (this->ticketType != nullptr) {
