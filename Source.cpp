@@ -1,7 +1,8 @@
- #include <iostream>
- #include <string>
- #include <vector>
- using namespace std;
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <string>
+#include <vector>
+using namespace std;
 
 
  class Event {
@@ -99,6 +100,7 @@
              return false;
      }
 
+
      ~Event() {
          this->eventName=" ";
      }
@@ -124,7 +126,7 @@
          this->numRows = 0;
          this->numZones = 0;
          this->seatsPerRow = 0;
-         totalEvents++;
+         totalEventLocations++;
      }
 
      Location(string locationName,int seats, int numRows, int numZones, int* seatsPerRow) {
@@ -207,13 +209,6 @@
          cout << "Every row has:" << getSeatsPerRow() << "seats" << endl;
      }
 
-
-
-     Location& operator=(const Location& other);
-     friend ostream& operator<<(ostream& os, const Location& eventLocations);
-     friend istream& operator>>(istream& is, Location& eventLocations);
-     int totalEvents = 0;
-
      friend bool operator!(const Location& l) {
          if (l.locationName != " ") {
              return true;
@@ -222,56 +217,39 @@
              return false;
          }
      }
+     void displayLocationDetails() {
+         cout << "Location Details:\n";
+         cout << "Max Seats: " << this->seats << "\n";
 
-
-     Location(const Location& other) {
-         seats = this->seats;
-         numRows = this->numRows;
-         numZones = this->numZones;
-         seatsPerRow = this->seatsPerRow;
-         totalEventLocations++;
      }
 
+     Location& operator=(const Location& other) {
+         if (this != &other) {
+             locationName = other.locationName;
+             seats = other.seats;
+             numRows = other.numRows;
+             numZones = other.numZones;
+
+             delete[] seatsPerRow;
+
+             if (other.seatsPerRow != nullptr) {
+                 seatsPerRow = new int[numRows];
+                 std::memcpy(seatsPerRow, other.seatsPerRow, sizeof(int) * numRows);
+             }
+             else {
+                 seatsPerRow = nullptr;
+             }
+         }
+         return *this;
+     }
+ 
      ~Location() {
         delete[] this->seatsPerRow;
      }
 
-    // int Location::getSeats() const {
-       //  return this->Seats;
-    // }
-
-    // void Location::setSeats(int seats) {
-       //  if (seats > 0) {
-         ///    this->Seats = seats;
-       //  }
-        // else {
-           //  cout << "Invalid input for seats \n";
-       //  }
-    // }
-
-
-     // Generic methods
-     //void Location::processLocation() {
-         // Implement your processing logic here
-     //}
-
-     //void Location::displayLocationDetails() const {
-       //  std::cout << "Location Details:\n";
-         //std::cout << "Max Seats: " << Seats << "\n";
-         // Display other details
-     //}
-
-     //ostream& operator<<(ostream& os, const Location& eventLocation) {
-       //  os << "Max Seats: " << eventLocation.maxSeats << "\n";
-         // Output other details
-         //return os;
-     //}
-
-     //istream& operator>>(istream& is, Location& eventLocation) {
-         // Input logic for EventLocation
-       //  return is;
-     //}
  };
+
+
 class Ticket {
 private:
     const int eventId;
@@ -370,6 +348,26 @@ public:
         }
     }
 
+    Ticket& operator=(const Ticket& other) {
+        if (this != &other) {
+            
+            delete[] this->ticketType;
+
+            this->price = other.price;
+            this->rowNo = other.rowNo;
+            this->seatNo = other.seatNo;
+
+           
+            if (other.ticketType != nullptr) {
+                this->ticketType = new char[strlen(other.ticketType) + 1];
+                strcpy_s(this->ticketType, strlen(other.ticketType) + 1, other.ticketType);
+            }
+            else {
+                this->ticketType = nullptr;
+            }
+        }
+        return *this;
+    }
 
     void printTicketDetails() {
         cout << "The ticket id is: " << getTicketId() << endl;
