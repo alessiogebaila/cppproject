@@ -4,8 +4,13 @@
 #include <vector>
 using namespace std;
 
+class Printable {
+public:
+    virtual void print() const = 0;
+};
 
- class Event {
+
+ class Event:public Printable {
  private:
      string eventName;
      string eventDate;
@@ -47,7 +52,7 @@ using namespace std;
          this->eventLocation = eventLocation;
      }
 
-     string getEventName() {
+     string getEventName() const{
          return this->eventName;
      }
 
@@ -55,7 +60,7 @@ using namespace std;
          this->eventName = eventName;
      }
 
-     string getEventDate() {
+     string getEventDate() const{
          return this->eventDate;
      }
 
@@ -67,7 +72,7 @@ using namespace std;
              throw exception("The string has an invalid date format.");
      }
 
-     string getEventLocation() {
+     string getEventLocation() const{
          return this->eventLocation;
      }
 
@@ -82,10 +87,14 @@ using namespace std;
          this->eventLocation = location;
      }
 
-     void printEventDetails() {
+     void printEventDetails() const {
          cout << "The event is named:" << getEventName() << endl;
          cout << "The event is on the:" << getEventDate() << endl;
          cout << "The event is at:" << getEventLocation() << endl;
+     }
+
+     void print() const override {
+         printEventDetails();
      }
 
      Event& operator=(const Event& other);
@@ -108,7 +117,7 @@ using namespace std;
  };
 
 
- class Location {
+ class Location: public Printable {
  private:
      string locationName;
      int seats;
@@ -138,7 +147,7 @@ using namespace std;
          totalEventLocations++;
      }
 
-     int getSeats() {
+     int getSeats() const {
          return this->seats;
      }
 
@@ -151,7 +160,7 @@ using namespace std;
          }
      }
 
-     int getNumRows() {
+     int getNumRows() const{
          return this->numRows;
      }
 
@@ -159,7 +168,7 @@ using namespace std;
          this->numRows = numRows;
      }
 
-     int getNumZones() {
+     int getNumZones() const {
          return this->numZones;
      }
 
@@ -167,7 +176,7 @@ using namespace std;
          this->numZones = numZones;
      }
 
-     int* getSeatsPerRow() {
+     int* getSeatsPerRow() const {
          int* copy = new int[this->numRows];
          for (int i = 0; i < this->numRows; i++) {
              copy[i] = this->seatsPerRow[i];
@@ -182,7 +191,7 @@ using namespace std;
 
          this->numRows = newNumRows;
      }
-     static int getTotalEventLocations() {
+     static int getTotalEventLocations()  {
          return totalEventLocations;
      }
 
@@ -190,7 +199,7 @@ using namespace std;
          totalEventLocations = TotalEventLocations;
      }
 
-     string getLocationName() {
+     string getLocationName() const {
          return this->locationName;
      }
 
@@ -201,12 +210,16 @@ using namespace std;
          this->locationName = location;
      }
 
-     void printLocationDetails() {
+     void printLocationDetails() const {
          cout << "The location name is: " << getLocationName() << endl;
          cout << "The location has:" << getNumZones() << " zones" << endl;
          cout << "The location has:" << getNumRows() << "rows" << endl;
          cout << "The location has:" << getSeats() << "seats" << endl;
          cout << "Every row has:" << getSeatsPerRow() << "seats" << endl;
+     }
+
+     void print() const override {
+         printLocationDetails();
      }
 
      friend bool operator!(const Location& l) {
@@ -250,7 +263,7 @@ using namespace std;
  };
 
 
-class Ticket {
+class Ticket:public Printable {
 private:
     const int eventId;
     char* ticketType=nullptr;
@@ -377,6 +390,10 @@ public:
         cout << "The seat number is:" << getSeatNo() << endl;
     }
 
+    void print() {
+        printTicketDetails();
+    }
+
     ~Ticket() {
         if (this->ticketType != nullptr) {
             delete[] this->ticketType;
@@ -385,7 +402,68 @@ public:
     }
   };
 
-int main() {
+  class PrintableOperation {
+  public:
+      virtual void execute(const Printable& printable) const = 0;
+  };
+
+  
+  class PrintOperation : public PrintableOperation {
+  public:
+      void execute(const Printable& printable) const override {
+          printable.print();
+      }
+  };
+
+  
+
+int main(int argc, char* argv[]) {
+    vector<Ticket> tickets;
+
+    if (argc == 2) {
+      tickets = loadTicketsFromFile(argv[1]);
+    }
+
     cout << "Hello, World!" << endl;
+
+    int choice;
+
+    do {
+        std::cout << "1. Add Ticket\n";
+        std::cout << "2. Display Tickets\n";
+        std::cout << "3. Save Tickets to File\n";
+        std::cout << "4. Quit\n";
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;
+
+        switch (choice) {
+        case 1: {
+            Ticket newTicket;
+            tickets.push_back(newTicket);
+            break;
+        }
+        case 2: {
+            PrintOperation printOperation;
+            for (const auto& ticket : tickets) {
+                printOperation.execute(ticket);
+            }
+            break;
+        }
+        case 3: {
+            std::string filename;
+            std::cout << "Enter filename: ";
+            std::cin >> filename;
+            saveTicketsToFile(tickets, filename);
+            break;
+        }
+        case 4:
+            std::cout << "Exiting program.\n";
+            break;
+        default:
+            std::cout << "Invalid choice. Try again.\n";
+        }
+    } while (choice != 4);
+
     return 0;
+}
 }
