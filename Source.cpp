@@ -30,9 +30,9 @@ public:
              }
          }
 
-         int d = std::stoi(value.substr(0, 2));
-         int m = std::stoi(value.substr(3, 2));
-         int y = std::stoi(value.substr(6, 4));
+         int d = stoi(value.substr(0, 2));
+         int m = stoi(value.substr(3, 2));
+         int y = stoi(value.substr(6, 4));
 
          if (m < 1 || m > 12 || d < 1 || d > 31) {
              return false;
@@ -247,7 +247,7 @@ public:
 
              if (other.seatsPerRow != nullptr) {
                  seatsPerRow = new int[numRows];
-                 std::memcpy(seatsPerRow, other.seatsPerRow, sizeof(int) * numRows);
+                 memcpy(seatsPerRow, other.seatsPerRow, sizeof(int) * numRows);
              }
              else {
                  seatsPerRow = nullptr;
@@ -429,12 +429,12 @@ int main(int argc, char* argv[]) {
     int choice;
 
     do {
-        std::cout << "1. Add Ticket\n";
-        std::cout << "2. Display Tickets\n";
-        std::cout << "3. Save Tickets to File\n";
-        std::cout << "4. Quit\n";
-        std::cout << "Enter your choice: ";
-        std::cin >> choice;
+        cout << "1. Add Ticket\n";
+        cout << "2. Display Tickets\n";
+        cout << "3. Save Tickets to File\n";
+        cout << "4. Quit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
 
         switch (choice) {
         case 1: {
@@ -450,17 +450,17 @@ int main(int argc, char* argv[]) {
             break;
         }
         case 3: {
-            std::string filename;
-            std::cout << "Enter filename: ";
-            std::cin >> filename;
+            string filename;
+            cout << "Enter filename: ";
+            cin >> filename;
             saveTicketsToFile(tickets, filename);
             break;
         }
         case 4:
-            std::cout << "Exiting program.\n";
+            cout << "Exiting program.\n";
             break;
         default:
-            std::cout << "Invalid choice. Try again.\n";
+            cout << "Invalid choice. Try again.\n";
         }
     } while (choice != 4);
 
