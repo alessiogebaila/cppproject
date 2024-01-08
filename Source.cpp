@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 using namespace std;
 
 class Printable {
@@ -40,6 +41,8 @@ public:
 
          return true;
      }
+
+
 
      Event() {
          this->eventName =" ";
@@ -273,6 +276,7 @@ private:
     static int totalTickets;
 
 public:
+    
 
     Ticket() :eventId(1) {
         this->ticketType=nullptr;
@@ -296,7 +300,7 @@ public:
     Ticket(const string& eventId, const string& ticketType);
     
 
-    string getTicketType() {
+    string getTicketType() const {
         return string(this->ticketType);
     }
     void setTicketType(string ticketType) {
@@ -304,7 +308,7 @@ public:
         strcpy_s(this->ticketType, ticketType.size() + 1, ticketType.c_str());
     }
 
-    int getRowNo() {
+    int getRowNo() const {
         return this->rowNo;
     }
     
@@ -315,7 +319,7 @@ public:
         this->rowNo = rowNo;
     }
 
-    int getSeatNo() {
+    int getSeatNo() const {
         return this->seatNo;
     }
 
@@ -326,7 +330,7 @@ public:
         this->seatNo = seatNo;
     }
 
-    int getPrice() {
+    int getPrice() const {
         return this->price;
     }
 
@@ -361,6 +365,8 @@ public:
         }
     }
 
+    
+
     Ticket& operator=(const Ticket& other) {
         if (this != &other) {
             
@@ -381,18 +387,15 @@ public:
         }
         return *this;
     }
-
-    void printTicketDetails() {
+    void print() const override {
+        cout << "Ticket details:\n";
         cout << "The ticket id is: " << getTicketId() << endl;
         cout << "The ticket type is:" << getTicketType() << endl;
         cout << "The ticket price is:" << getPrice() << endl;
-        cout << "The row number is:" << getRowNo() << endl;
-        cout << "The seat number is:" << getSeatNo() << endl;
+        cout << "Row: " << getRowNo() << ", Seat: " << getSeatNo() << endl;
     }
 
-    void print() {
-        printTicketDetails();
-    }
+   
 
     ~Ticket() {
         if (this->ticketType != nullptr) {
@@ -415,7 +418,48 @@ public:
       }
   };
 
+  class TicketRepository {
+  public:
+      static vector<Ticket> loadTicketsFromBinaryFile(const string& filename);
+      static void saveTicketsToBinaryFile(const vector<Ticket>& tickets, const string& filename);
+  };
+
   
+
+  vector<Ticket> TicketRepository::loadTicketsFromBinaryFile(const string& filename) {
+      vector<Ticket> tickets;
+      ifstream file(filename, ios::binary);
+
+      if (!file.is_open()) {
+          cerr << "Error opening binary file for reading." << endl;
+          return tickets;
+      }
+
+      Ticket ticket;
+      while (file.read(reinterpret_cast<char*>(&ticket), sizeof(Ticket))) {
+          tickets.push_back(ticket);
+      }
+
+      file.close();
+      return tickets;
+  }
+
+ 
+
+  static void saveTicketsToFile(const vector<Ticket>& tickets, const string& filename) {
+      
+      ofstream outputFile(filename);
+      if (outputFile.is_open()) {
+          for (const auto& ticket : tickets) {
+              outputFile << ticket;
+          }
+          outputFile.close();
+      }
+      else {
+          cout << "Unable to open file for writing.";
+      }
+  }
+
 
 int main(int argc, char* argv[]) {
     vector<Ticket> tickets;
@@ -465,5 +509,4 @@ int main(int argc, char* argv[]) {
     } while (choice != 4);
 
     return 0;
-}
 }
