@@ -1,2 +1,2 @@
 ﻿  Source.cpp
-C:\cppproject\myproject\Source.cpp(468,17): error C3861: 'loadTicketsFromFile': identifier not found
+  myproject.vcxproj -> C:\cppproject\myproject\x64\Debug\myproject.exe
