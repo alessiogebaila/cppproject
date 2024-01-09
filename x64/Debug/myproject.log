@@ -1,2 +1,5 @@
 ﻿  Source.cpp
-  myproject.vcxproj -> C:\cppproject\myproject\x64\Debug\myproject.exe
+C:\cppproject\myproject\Source.cpp(524,14): error C2661: 'Ticket::Ticket': no overloaded function takes 4 arguments
+C:\cppproject\myproject\Source.cpp(524,14): message : while trying to match the argument list '(int, const char [8], int, int)'
+C:\cppproject\myproject\Source.cpp(526,14): error C2661: 'Ticket::Ticket': no overloaded function takes 4 arguments
+C:\cppproject\myproject\Source.cpp(526,14): message : while trying to match the argument list '(int, const char [8], int, int)'
