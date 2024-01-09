@@ -9,8 +9,6 @@ using namespace std;
 class Printable {
 public:
     virtual void print() const = 0;
-    virtual string serialize() const = 0; 
-    virtual ~Printable() = default;
 };
 
 
@@ -98,18 +96,6 @@ public:
          cout << "The event is on the:" << getEventDate() << endl;
          cout << "The event is at:" << getEventLocation() << endl;
      }
-
-     void print() const override {
-         printEventDetails();
-     }
-
-     string serialize() const override {
-         
-         stringstream stringStream;
-         stringStream << eventName << "|" << eventDate << "|" << eventLocation;
-         return stringStream.str();
-     }
-
 
      Event& operator=(const Event& other);
      friend ostream& operator<<(ostream& os, const Event& eventLocation);
@@ -400,27 +386,16 @@ public:
         }
         return *this;
     }
-    void print() const override {
-        cout << "Ticket details:\n";
+
+    void printTicketDetails() {
+        cout << "The ticket id is: " << getTicketId() << endl;
         cout << "The ticket type is:" << getTicketType() << endl;
         cout << "The ticket price is:" << getPrice() << endl;
-        cout << "Row: " << getRowNo() << ", Seat: " << getSeatNo() << endl;
+        cout << "The row number is:" << getRowNo() << endl;
+        cout << "The seat number is:" << getSeatNo() << endl;
     }
 
-    string serialize() const override {
-       
-        stringstream ss;
-        ss << "Ticket|" << getTicketType() << "|" << getRowNo() << "|" << getSeatNo() << "|" << getPrice();
-        return ss.str();
-    }
-
-    Ticket(const Ticket& other) : eventId(other.eventId) {
-        this->ticketType = new char[strlen(other.ticketType) + 1];
-        strcpy_s(this->ticketType, strlen(other.ticketType) + 1, other.ticketType);
-        this->rowNo = other.rowNo;
-        this->seatNo = other.seatNo;
-        this->price = other.price;
-    }
+   
 
     ~Ticket() {
         if (this->ticketType != nullptr) {
@@ -430,137 +405,7 @@ public:
     }
   };
 
-  class PrintableOperation {
-  public:
-      virtual void execute(const Printable& printable) const = 0;
-      virtual ~PrintableOperation() = default;
-  };
-
-  class PrintOperation : public PrintableOperation {
-  public:
-      void execute(const Printable& printable) const override {
-          printable.print();
-      }
-  };
-
-  class TicketRepository {
-  public:
-      static vector<Ticket> loadTicketsFromBinaryFile(const string& filename);
-      static void saveTicketsToBinaryFile(const vector<Ticket>& tickets, const string& filename);
-  };
-
-  void TicketRepository::saveTicketsToBinaryFile(const vector<Ticket>& tickets, const string& filename) {
-      ofstream file(filename, ios::binary);
-
-      if (!file.is_open()) {
-          cerr << "Error opening binary file for writing." << endl;
-          return;
-      }
-
-      for (const auto& ticket : tickets) {
-          string serializedTicket = ticket.serialize();
-          file.write(serializedTicket.c_str(), serializedTicket.size());
-          file.put('\n');
-      }
-
-      file.close();
-
-      cout << "Tickets saved to binary file successfully." << endl;
-  }
-
-  vector<Ticket> TicketRepository::loadTicketsFromBinaryFile(const string& filename) {
-      vector<Ticket> tickets;
-      ifstream file(filename, ios::binary);
-
-      if (!file.is_open()) {
-          cerr << "Error opening binary file for reading." << endl;
-          return tickets;
-      }
-
-      string line;
-      while (getline(file, line)) {
-          istringstream iss(line);
-          vector<string> tokens;
-          string token;
-
-          while (getline(iss, token, '|')) {
-              tokens.push_back(token);
-          }
-
-          
-          if (tokens.size() == 100) {
-              Ticket ticket;
-              tickets.push_back(ticket);
-          }
-      }
-
-      file.close();
-
-      cout << "Tickets loaded from binary file successfully." << endl;
-
-      return tickets;
-  }
-
-
-  
-
-  int main() {
-
-      vector<Ticket> tickets;
-
-      vector<Ticket> loadedTickets = TicketRepository::loadTicketsFromBinaryFile("tickets.bin");
-
-      tickets.insert(tickets.end(), loadedTickets.begin(), loadedTickets.end());
-      
-
-     
-    int choice;
-
-    do {
-        cout << "1. Add Ticket\n";
-        cout << "2. Display Tickets\n";
-        cout << "3. Save Tickets to File\n";
-        cout << "4. Quit\n";
-        cout << "Enter your choice: ";
-        cin >> choice;
-
-        switch (choice) {
-        case 1: {
-            Ticket newTicket;
-            tickets.push_back(newTicket);
-            break;
-        }
-        case 2: {
-            PrintOperation printOperation;
-            for (const auto& ticket : tickets) {
-                printOperation.execute(ticket);
-            }
-            break;
-        }
-        case 3: {
-            string filename;
-            cout << "Enter filename: ";
-            cin >> filename;
-            TicketRepository::saveTicketsToBinaryFile(tickets, filename);
-            break;
-        }
-        case 4: {
-            cout << "Exiting program.\n";
-            break;
-        }
-        case 5: {
-
-            string filename;
-            cout << "Enter filename: ";
-            cin >> filename;
-            TicketRepository::saveTicketsToBinaryFile(tickets, filename);
-            break;
-        }
-
-        default:
-            cout << "Invalid choice. Try again.\n";
-
-            return 0;
-        }
-    }while (choice != 6);
+int main() {
+    cout << "Hello, World!" << endl;
+    return 0;
 }
