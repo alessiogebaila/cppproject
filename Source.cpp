@@ -15,123 +15,6 @@ public:
 };
 
 
-class Event :public Printable {
-private:
-    string eventName;
-    string eventDate;
-    string eventLocation;
-
-
-public:
-
-    bool isValidDateFormat(const std::string& value) {
-        if (value.size() != 10 || value[2] != '-' || value[5] != '-') {
-            return false;
-        }
-
-        for (int i : {0, 1, 3, 4, 6, 7, 8, 9}) {
-            if (!std::isdigit(value[i])) {
-                return false;
-            }
-        }
-
-        int d = stoi(value.substr(0, 2));
-        int m = stoi(value.substr(3, 2));
-        int y = stoi(value.substr(6, 4));
-
-        if (m < 1 || m > 12 || d < 1 || d > 31) {
-            return false;
-        }
-
-        return true;
-    }
-
-
-
-    Event() {
-        this->eventName = " ";
-        this->eventDate = " ";
-        this->eventLocation = " ";
-    }
-    Event(const string& eventName, const string& eventDate, const string& eventLocation) {
-        this->eventName = eventName;
-        this->eventDate = eventDate;
-        this->eventLocation = eventLocation;
-    }
-
-    string getEventName() const {
-        return this->eventName;
-    }
-
-    void setEventName(string eventName) {
-        this->eventName = eventName;
-    }
-
-    string getEventDate() const {
-        return this->eventDate;
-    }
-
-    void setEventDate(const string& newDate) {
-        if (isValidDateFormat(newDate)) {
-            this->eventDate = newDate;
-        }
-        else
-            throw exception("The string has an invalid date format.");
-    }
-
-    string getEventLocation() const {
-        return this->eventLocation;
-    }
-
-    void setEventLocation(string eventLocation) {
-        this->eventLocation = eventLocation;
-    }
-
-    void setLocationName(const string location) {
-        if (location.length() < 3 || location.length() > 20) {
-            throw exception("You entered an invalid string");
-        };
-        this->eventLocation = location;
-    }
-
-    void printEventDetails() const {
-        cout << "The event is named:" << getEventName() << endl;
-        cout << "The event is on the:" << getEventDate() << endl;
-        cout << "The event is at:" << getEventLocation() << endl;
-    }
-
-    void print() const override {
-        printEventDetails();
-    }
-
-    string serialize() const override {
-
-        stringstream stringStream;
-        stringStream << eventName << "|" << eventDate << "|" << eventLocation;
-        return stringStream.str();
-    }
-
-
-    Event& operator=(const Event& other);
-    friend ostream& operator<<(ostream& os, const Event& eventLocation);
-    friend istream& operator>>(istream& is, Event& eventLocation);
-    int totalEvents = 0;
-
-    friend bool operator!(const Event& e) {
-        if (e.eventLocation != " ")
-            return true;
-        else
-            return false;
-    }
-
-
-    ~Event() {
-        this->eventName = " ";
-    }
-
-};
-
-
 class Location : public Printable {
 private:
     string locationName;
@@ -277,6 +160,354 @@ public:
 
 };
 
+class Event :public Printable {
+private:
+    string eventName;
+    string eventDate;
+    string eventTime;
+    Location locationName;
+
+
+public:
+
+    bool isValidDateFormat(const std::string& value) {
+        if (value.size() != 10 || value[2] != '-' || value[5] != '-') {
+            return false;
+        }
+
+        for (int i : {0, 1, 3, 4, 6, 7, 8, 9}) {
+            if (!std::isdigit(value[i])) {
+                return false;
+            }
+        }
+
+        int d = stoi(value.substr(0, 2));
+        int m = stoi(value.substr(3, 2));
+        int y = stoi(value.substr(6, 4));
+
+        if (m < 1 || m > 12 || d < 1 || d > 31) {
+            return false;
+        }
+
+        return true;
+    }
+
+    static bool isValidTimeFormat(const string& timeStr) {
+        if (timeStr.size() != 5 || timeStr[2] != '-') {
+            return false;
+        }
+
+        for (int i : {0, 1, 3, 4}) {
+            if (!isdigit(timeStr[i])) {
+                return false;
+            }
+        }
+
+        int hour = stoi(timeStr.substr(0, 2));
+        int minute = stoi(timeStr.substr(3, 2));
+
+        if (minute < 0 || minute > 59 || hour < 0 || hour > 23) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+
+    Event() {
+        this->eventName = " ";
+        this->eventDate = " ";
+        this->eventTime = " ";
+    }
+    Event(const string& eventName, const string& eventDate, const string& eventLocation) {
+        this->eventName = eventName;
+        this->eventDate = eventDate;
+        this->eventTime = eventLocation;
+    }
+
+    string getEventName() const {
+        return this->eventName;
+    }
+
+    void setEventName(string eventName) {
+        this->eventName = eventName;
+    }
+
+    string getEventDate() const {
+        return this->eventDate;
+    }
+
+    void setEventDate(const string& newDate) {
+        if (isValidDateFormat(newDate)) {
+            this->eventDate = newDate;
+        }
+        else
+            throw exception("The string has an invalid date format.");
+    }
+
+    string getEventTime() const {
+        return this->eventTime;
+    }
+
+    void setEventTime(const string& newTime) {
+        if (isValidTimeFormat(newTime)) {
+            this->eventTime = newTime;
+        }
+        else
+            throw exception("The string that you wanted to initialize eventTime with has an invalid time format, enter a hh:mm one.");
+    }
+
+
+    void setLocationName(const string location) {
+        if (location.length() < 3 || location.length() > 20) {
+            throw exception("You entered an invalid string");
+        };
+        this->locationName = location;
+    }
+
+    void printEventDetails() const {
+        cout << "The event is named:" << getEventName() << endl;
+        cout << "The event is on the:" << getEventDate() << endl;
+        cout << "The event is at:" << getEventTime() << endl;
+    }
+
+    void print() const override {
+        printEventDetails();
+    }
+
+    string serialize() const override {
+
+        stringstream stringStream;
+        stringStream << eventName << "|" << eventDate << "|" << locationName;
+        return stringStream.str();
+    }
+
+
+    Event& operator=(const Event& other);
+    friend ostream& operator<<(ostream& os, const Event& eventLocation);
+    friend istream& operator>>(istream& is, Event& eventLocation);
+    int totalEvents = 0;
+
+    friend bool operator!(const Event& e) {
+        if (e.locationName != " ")
+            return true;
+        else
+            return false;
+    }
+
+
+    ~Event() {
+        this->eventName = " ";
+    }
+
+};
+
+
+class Seat {
+private:
+    int number;
+    bool reserved = false;
+
+public:
+   
+    int getNumber() {
+        return this->number;
+    }
+
+    void setNumber(int nr) {
+        if (nr < 1) {
+            throw exception("Invalid seat number");
+        }
+        this->number = nr;
+    }
+
+    bool isReserved() {
+        return reserved;
+    }
+
+    void reserve() {
+        this->reserved = true;
+    }
+
+   
+    Seat() : number(1) {}
+
+    Seat(int nr) {
+        this->setNumber(nr);
+    }
+
+    Seat(const Seat& other) {
+        this->setNumber(other.number);
+        this->reserved = other.reserved;
+    }
+
+    ~Seat() {}
+
+    
+    Seat& operator=(const Seat& other) {
+        if (this != &other) {
+            this->setNumber(other.number);
+            this->reserved = other.reserved;
+        }
+        return *this;
+    }
+
+    Seat& operator!() {
+         
+        this->reserved = false;
+        return *this;
+    }
+
+    friend std::ostream& operator<<(ostream& os, const Seat& seat) {
+        os << std::endl << "Seat Number: " << seat.number << ", Reserved: " << (seat.reserved ? "Yes" : "No");
+        return os;
+    }
+
+    friend std::istream& operator>>(std::istream& is, Seat& seat) {
+        ;
+        is >> seat.number;
+
+        int reservedInput;
+        
+        is >> reservedInput;
+        seat.reserved = (reservedInput == 1);
+
+        return is;
+    }
+
+    
+    void displayDetails() const {
+        cout << endl << *this;
+    }
+};
+
+class Row {
+private:
+    int nr;
+    Seat* seats = nullptr;
+    int nrSeats = 0;
+
+public:
+    
+    int getNumber() const {
+        return this->nr;
+    }
+
+    void setNumber(int num) {
+        if (num < 1) {
+            throw exception("Invalid row number");
+        }
+        this->nr = num;
+    }
+
+    int getNumSeats() const {
+        return this->nrSeats;
+    }
+
+    void setNumSeats(int num) {
+        if (num < 5) {
+            throw exception("Row must have at least five seats");
+        }
+        this->nrSeats = num;
+    }
+
+    
+    Row() : nr(1), nrSeats(1) {
+        seats = new Seat[nrSeats];
+    }
+
+    Row(int num, int nrSeats) {
+        this->setNumber(num);
+        this->setNumSeats(nrSeats);
+        this->seats = new Seat[this->nrSeats];
+
+        for (int i = 0; i < this->nrSeats; ++i) {
+            this->seats[i] = Seat(i + 1);
+        }
+    }
+
+    Row(const Row& other) : nr(other.nr), nrSeats(other.nrSeats) {
+        this->seats = new Seat[this->nrSeats];
+
+        for (int i = 0; i < this->nrSeats; ++i) {
+            this->seats[i] = other.seats[i];
+        }
+    }
+
+    ~Row() {
+        delete[] this->seats;
+    }
+
+    
+    Row& operator=(const Row& other) {
+        if (this != &other) {
+            delete[] this->seats;
+            this->nr = other.nr;
+            this->nrSeats = other.nrSeats;
+            this->seats = new Seat[this->nrSeats];
+
+            for (int i = 0; i < this->nrSeats; ++i) {
+                this->seats[i] = other.seats[i];
+            }
+        }
+        return *this;
+    }
+
+    Seat& operator[](int index) {
+        if (index < 0 || index >= this->nrSeats) {
+            throw out_of_range("Invalid seat ");
+        }
+        return this->seats[index];
+    }
+
+    friend ostream& operator<<(ostream& os, const Row& row) {
+        os << endl << " Row " << row.nr ;
+        
+        return os;
+    }
+
+    friend std::istream& operator>>(std::istream& is, Row& row) {
+        
+        is >> row.nr;
+
+        is >> row.nr;
+
+        row.seats = new Seat[row.nr];
+
+        for (int i = 0; i < row.nr; ++i) {
+             is >> row.seats[i];
+        }
+
+        return is;
+    }
+
+    
+    void displayDetails() const {
+        cout << endl << " Row: " << this->nr <<endl;
+        for (int i = 0; i < this->nr; ++i) {
+            cout << this->seats[i];
+        }
+        
+    }
+
+    void reserveRow() {
+        
+        for (int i = 0; i < this->nr; ++i) {
+            this->seats[i].reserve();
+        }
+    }
+
+    Seat getSeat(int seatNr) const {
+        for (int i = 0; i < nrSeats; ++i) {
+            if (seats[i].getNumber() == seatNr) {
+                return seats[i];
+            }
+        }
+
+        throw runtime_error("Seat not found");
+    }
+};
 
 
 class Ticket :public Printable {
@@ -284,31 +515,27 @@ private:
     const int eventId;
     char* ticketType = nullptr;
     int price;
-    int seatNo;
-    int rowNo;
+    Seat seatNr;
+    Row rowNr;
     static int totalTickets;
 
 
 
 public:
 
-    
+
     Ticket() :eventId(1) {
         this->ticketType = new char[1] {'\0'};
-        this->rowNo = 0;
-        this->seatNo = 0;
         this->price = 0;
-        
+
 
 
 
     }
 
-    Ticket(int eventId, char* ticketType, int rowNo, int seatNo, int price) : eventId(eventId)
+    Ticket(int eventId, char* ticketType, int rowNr, int seatNr, int price) : eventId(eventId)
     {
         this->ticketType = ticketType;
-        this->rowNo = rowNo;
-        this->seatNo = seatNo;
         this->price = 0;
 
         totalTickets++;
@@ -324,28 +551,6 @@ public:
     void setTicketType(string ticketType) {
         this->ticketType = new char[ticketType.size() + 1];
         strcpy_s(this->ticketType, ticketType.size() + 1, ticketType.c_str());
-    }
-
-    int getRowNo() const {
-        return this->rowNo;
-    }
-
-    void setRowNo(int rowNo) {
-        if (rowNo < 1 || rowNo>10) {
-            throw exception("This row does not exist!");
-        }
-        this->rowNo = rowNo;
-    }
-
-    int getSeatNo() const {
-        return this->seatNo;
-    }
-
-    void setSeatNo(int seatNo) {
-        if (seatNo < 1 || seatNo>15) {
-            throw exception("This seat does not exist!");
-        }
-        this->seatNo = seatNo;
     }
 
     int getPrice() const {
@@ -389,9 +594,7 @@ public:
             delete[] this->ticketType;
 
             this->price = other.price;
-            this->rowNo = other.rowNo;
-            this->seatNo = other.seatNo;
-
+          
 
             if (other.ticketType != nullptr) {
                 this->ticketType = new char[strlen(other.ticketType) + 1];
@@ -407,21 +610,21 @@ public:
         cout << "Ticket details:\n";
         cout << "The ticket type is:" << getTicketType() << endl;
         cout << "The ticket price is:" << getPrice() << endl;
-        cout << "Row: " << getRowNo() << ", Seat: " << getSeatNo() << endl;
+        cout << "Row: " << rowNr << ", Seat: " << seatNr << endl;
     }
 
     string serialize() const override {
 
         stringstream ss;
-        ss << "Ticket|" << getTicketType() << "|" << getRowNo() << "|" << getSeatNo() << "|" << getPrice();
+        ss << "Ticket|" << getTicketType() << "|" << rowNr << "|" << seatNr << "|" << getPrice();
         return ss.str();
     }
 
     Ticket(const Ticket& other) : eventId(other.eventId) {
         this->ticketType = new char[strlen(other.ticketType) + 1];
         strcpy_s(this->ticketType, strlen(other.ticketType) + 1, other.ticketType);
-        this->rowNo = other.rowNo;
-        this->seatNo = other.seatNo;
+        this->rowNr = other.rowNr;
+        this->seatNr = other.seatNr;
         this->price = other.price;
     }
 
@@ -520,48 +723,43 @@ vector<Ticket> TicketRepository::loadTicketsFromBinaryFile(const string& filenam
 
 int Ticket::totalTickets = 0;
 
-int main() {
-    Ticket t1(9, "Court 1", 3, 7);
-    cout << t1;
-    Ticket t2(7,"Court 2",6,10);
-    cout << t2;
-    
-    int i = t1.getPrice();
-    cout << i << "\n";
-    t1.setPrice(500);
-    i = t1.getPrice();
-    cout << i << "\n";
-   
+int main(int argc, char* argv[]) {
+
 
     vector<Ticket> tickets;
 
-    vector<Ticket> loadedTickets = TicketRepository::loadTicketsFromBinaryFile("tickets.bin");
+    if (argc > 1) {
+        tickets = TicketRepository::loadTicketsFromBinaryFile(argv[1]);
+    }
+    else {
 
-    tickets.insert(tickets.end(), loadedTickets.begin(), loadedTickets.end());
+        vector<Ticket> loadedTickets = TicketRepository::loadTicketsFromBinaryFile("tickets.bin");
+
+        tickets.insert(tickets.end(), loadedTickets.begin(), loadedTickets.end());
 
 
 
-    int choice;
+        int choice;
 
-    do {
-        cout << "1. Add Ticket\n";
-        cout << "2. Display Tickets\n";
-        cout << "3. Save Tickets to File\n";
-        cout << "4. Quit\n";
-        cout << "Enter your choice: ";
-        cin >> choice;
+        do {
+            cout << "1. Add Ticket\n";
+            cout << "2. Display Tickets\n";
+            cout << "3. Save Tickets to File\n";
+            cout << "4. Quit\n";
+            cout << "Enter your choice: ";
+            cin >> choice;
 
-        switch (choice) {
-        case 1: {
-           
+            switch (choice) {
+            case 1: {
+
                 cout << "Adding a new ticket..." << endl;
                 string ticketType;
-                int price,rowNo,seatNo;
+                int price, rowNo, seatNo;
 
                 cout << "Enther the ticket type:";
                 cin >> ticketType;
 
-                cout<< "Enter the ticket price:";
+                cout << "Enter the ticket price:";
                 cin >> price;
 
                 cout << "Enter the row number:";
@@ -580,31 +778,34 @@ int main() {
                 }
 
                 break;
-        }
-
-        case 2: {
-            PrintOperation printOperation;
-            for (const auto& ticket : tickets) {
-                printOperation.execute(ticket);
             }
-            break;
-        }
-        case 3: {
-            string filename;
-            cout << "Enter filename: ";
-            cin >> filename;
-            TicketRepository::saveTicketsToBinaryFile(tickets, filename);
-            break;
-        }
-        case 4: {
-            cout << "Exiting program.\n";
-            break;
-        }
 
-        default:
-            cout << "Invalid choice. Try again.\n";
+            case 2: {
+                PrintOperation printOperation;
+                for (const auto& ticket : tickets) {
+                    printOperation.execute(ticket);
+                }
+                break;
+            }
+            case 3: {
+                string filename;
+                cout << "Enter filename: ";
+                cin >> filename;
+                TicketRepository::saveTicketsToBinaryFile(tickets, filename);
+                break;
+            }
+            case 4: {
+                cout << "Exiting program.\n";
+                break;
+            }
 
-            return 0;
-        }
-    } while (choice != 4);
+            default:
+                cout << "Invalid choice. Try again.\n";
+
+                return 0;
+            }
+        } while (choice != 4);
+
+    }
+
 }
