@@ -6,7 +6,6 @@
 #include <fstream>
 using namespace std;
 
-
 class Printable {
 public:
     virtual void print() const = 0;
@@ -14,8 +13,7 @@ public:
     virtual ~Printable() = default;
 };
 
-
-class Location : public Printable {
+class Location{
 private:
     string locationName;
     int seats;
@@ -32,7 +30,7 @@ public:
         this->seats = 0;
         this->numRows = 0;
         this->numZones = 0;
-        this->seatsPerRow = 0;
+        this->seatsPerRow = nullptr;
         totalEventLocations++;
     }
 
@@ -63,7 +61,7 @@ public:
     }
 
     void setNumRows(int rows) {
-        this->numRows = numRows;
+        this->numRows = rows;
     }
 
     int getNumZones() const {
@@ -71,7 +69,7 @@ public:
     }
 
     void setNumZones(int zones) {
-        this->numZones = numZones;
+        this->numZones = zones;
     }
 
     int* getSeatsPerRow() const {
@@ -110,15 +108,18 @@ public:
 
     void printLocationDetails() const {
         cout << "The location name is: " << getLocationName() << endl;
-        cout << "The location has:" << getNumZones() << " zones" << endl;
-        cout << "The location has:" << getNumRows() << "rows" << endl;
-        cout << "The location has:" << getSeats() << "seats" << endl;
-        cout << "Every row has:" << getSeatsPerRow() << "seats" << endl;
+        cout << "The location has: " << getNumZones() << " zones" << endl;
+        cout << "The location has: " << getNumRows() << " rows" << endl;
+        cout << "The location has: " << getSeats() << " seats" << endl;
+
+        cout << "Seats per row:";
+        for (int i = 0; i < this->numRows; i++) {
+            cout << " " << this->seatsPerRow[i];
+        }
+        cout << endl;
     }
 
-    void print() const override {
-        printLocationDetails();
-    }
+    
 
     friend bool operator!(const Location& l) {
         if (l.locationName != " ") {
@@ -128,11 +129,7 @@ public:
             return false;
         }
     }
-    void displayLocationDetails() {
-        cout << "Location Details:\n";
-        cout << "Max Seats: " << this->seats << "\n";
-
-    }
+   
 
     Location& operator=(const Location& other) {
         if (this != &other) {
@@ -160,12 +157,14 @@ public:
 
 };
 
-class Event :public Printable {
+class Event {
 private:
+    Location location;
+
     string eventName;
     string eventDate;
     string eventTime;
-    Location locationName;
+ 
 
 
 public:
@@ -259,43 +258,18 @@ public:
     }
 
 
-    void setLocationName(const string location) {
-        if (location.length() < 3 || location.length() > 20) {
-            throw exception("You entered an invalid string");
-        };
-        this->locationName = location;
-    }
-
     void printEventDetails() const {
         cout << "The event is named:" << getEventName() << endl;
         cout << "The event is on the:" << getEventDate() << endl;
         cout << "The event is at:" << getEventTime() << endl;
     }
 
-    void print() const override {
-        printEventDetails();
-    }
-
-    string serialize() const override {
-
-        stringstream stringStream;
-        stringStream << eventName << "|" << eventDate << "|" << locationName;
-        return stringStream.str();
-    }
-
+    
 
     Event& operator=(const Event& other);
     friend ostream& operator<<(ostream& os, const Event& eventLocation);
     friend istream& operator>>(istream& is, Event& eventLocation);
     int totalEvents = 0;
-
-    friend bool operator!(const Event& e) {
-        if (e.locationName != " ")
-            return true;
-        else
-            return false;
-    }
-
 
     ~Event() {
         this->eventName = " ";
@@ -311,7 +285,7 @@ private:
 
 public:
    
-    int getNumber() {
+    int getNumber() const {
         return this->number;
     }
 
@@ -510,8 +484,9 @@ public:
 };
 
 
-class Ticket :public Printable {
+class Ticket:public Printable {
 private:
+    Event event;
     const int eventId;
     char* ticketType = nullptr;
     int price;
@@ -519,7 +494,7 @@ private:
     Row rowNr;
     static int totalTickets;
 
-
+    
 
 public:
 
@@ -527,10 +502,6 @@ public:
     Ticket() :eventId(1) {
         this->ticketType = new char[1] {'\0'};
         this->price = 0;
-
-
-
-
     }
 
     Ticket(int eventId, char* ticketType, int rowNr, int seatNr, int price) : eventId(eventId)
@@ -542,10 +513,8 @@ public:
 
     }
 
-    Ticket(const string& eventId, const string& ticketType);
 
-
-    string getTicketType() const {
+string getTicketType() const {
         return string(this->ticketType);
     }
     void setTicketType(string ticketType) {
@@ -614,11 +583,13 @@ public:
     }
 
     string serialize() const override {
-
+ 
         stringstream ss;
-        ss << "Ticket|" << getTicketType() << "|" << rowNr << "|" << seatNr << "|" << getPrice();
+        ss << "Ticket|" << getTicketType() << "|" << getPrice() << "|Row:" << rowNr.getNumber() << "|Seat:" << seatNr.getNumber();
         return ss.str();
     }
+
+    
 
     Ticket(const Ticket& other) : eventId(other.eventId) {
         this->ticketType = new char[strlen(other.ticketType) + 1];
@@ -635,6 +606,7 @@ public:
         }
     }
 };
+
 
 class PrintableOperation {
 public:
@@ -722,6 +694,7 @@ vector<Ticket> TicketRepository::loadTicketsFromBinaryFile(const string& filenam
 
 
 int Ticket::totalTickets = 0;
+int Location::totalEventLocations = 0;
 
 int main(int argc, char* argv[]) {
 
