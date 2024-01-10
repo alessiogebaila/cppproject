@@ -83,10 +83,14 @@ public:
     void setSeatsPerRow(int* newSeatsPerRow, int newNumRows) {
         delete[] this->seatsPerRow;
         this->seatsPerRow = new int[newNumRows];
-        memcpy(this->seatsPerRow, newSeatsPerRow, sizeof(int) * newNumRows);
+
+        for (int i = 0; i < newNumRows; ++i) {
+            this->seatsPerRow[i] = newSeatsPerRow[i];
+        }
 
         this->numRows = newNumRows;
     }
+
     static int getTotalEventLocations() {
         return totalEventLocations;
     }
@@ -95,13 +99,17 @@ public:
         totalEventLocations = TotalEventLocations;
     }
 
+    bool operator!() const {
+        return locationName.empty();
+    }
+
     string getLocationName() const {
         return this->locationName;
     }
 
     void setLocationName(const string location) {
         if (location.length() < 3 || location.length() > 20) {
-            throw exception("You entered an invalid string");
+            throw ("You entered an invalid string");
         };
         this->locationName = location;
     }
@@ -219,10 +227,10 @@ public:
         this->eventDate = " ";
         this->eventTime = " ";
     }
-    Event(const string& eventName, const string& eventDate, const string& eventLocation) {
+    Event(const string& eventName, const string& eventDate, const string& eventTime) {
         this->eventName = eventName;
         this->eventDate = eventDate;
-        this->eventTime = eventLocation;
+        this->eventTime = eventTime;
     }
 
     string getEventName() const {
@@ -242,7 +250,7 @@ public:
             this->eventDate = newDate;
         }
         else
-            throw exception("The string has an invalid date format.");
+            throw ("The string has an invalid date format.");
     }
 
     string getEventTime() const {
@@ -254,7 +262,7 @@ public:
             this->eventTime = newTime;
         }
         else
-            throw exception("The string that you wanted to initialize eventTime with has an invalid time format, enter a hh:mm one.");
+            throw ("The string that you wanted to initialize eventTime with has an invalid time format, enter a hh:mm one.");
     }
 
 
@@ -291,7 +299,7 @@ public:
 
     void setNumber(int nr) {
         if (nr < 1) {
-            throw exception("Invalid seat number");
+            throw ("Invalid seat number");
         }
         this->number = nr;
     }
@@ -333,12 +341,12 @@ public:
         return *this;
     }
 
-    friend std::ostream& operator<<(ostream& os, const Seat& seat) {
-        os << std::endl << "Seat Number: " << seat.number << ", Reserved: " << (seat.reserved ? "Yes" : "No");
+    friend ostream& operator<<(ostream& os, const Seat& seat) {
+        os << endl << "Seat Number: " << seat.number << endl<< ", Reserved: " << (seat.reserved ? "Yes" : "No");
         return os;
     }
 
-    friend std::istream& operator>>(std::istream& is, Seat& seat) {
+    friend istream& operator>>(istream& is, Seat& seat) {
         ;
         is >> seat.number;
 
@@ -390,10 +398,13 @@ public:
     Row() : nr(1), nrSeats(1) {
         seats = new Seat[nrSeats];
     }
+  
 
-    Row(int num, int nrSeats) {
-        this->setNumber(num);
-        this->setNumSeats(nrSeats);
+    Row(int num) : nr(num), nrSeats(1) {
+        seats = new Seat[nrSeats];
+    }
+
+    Row(int num, int nrSeats) : nr(num), nrSeats(nrSeats) {
         this->seats = new Seat[this->nrSeats];
 
         for (int i = 0; i < this->nrSeats; ++i) {
@@ -441,9 +452,7 @@ public:
         return os;
     }
 
-    friend std::istream& operator>>(std::istream& is, Row& row) {
-        
-        is >> row.nr;
+    friend istream& operator>>(istream& is, Row& row) {
 
         is >> row.nr;
 
@@ -458,11 +467,10 @@ public:
 
     
     void displayDetails() const {
-        cout << endl << " Row: " << this->nr <<endl;
-        for (int i = 0; i < this->nr; ++i) {
+        cout << endl << "Row: " << this->nr << endl;
+        for (int i = 0; i < this->nrSeats; ++i) {
             cout << this->seats[i];
         }
-        
     }
 
     void reserveRow() {
@@ -504,10 +512,10 @@ public:
         this->price = 0;
     }
 
-    Ticket(int eventId, char* ticketType, int rowNr, int seatNr, int price) : eventId(eventId)
+    Ticket(int eventId, char* ticketType, int rowNr, int seatNr, int price) : eventId(eventId),rowNr(rowNr),seatNr(seatNr)
     {
         this->ticketType = ticketType;
-        this->price = 0;
+        this->price = price;
 
         totalTickets++;
 
@@ -528,7 +536,7 @@ string getTicketType() const {
 
     void setPrice(int price) {
         if (price < 15 || price>500) {
-            throw exception("This price is invalid");
+            throw ("This price is invalid");
         }
         this->price = price;
     }
@@ -579,7 +587,8 @@ string getTicketType() const {
         cout << "Ticket details:\n";
         cout << "The ticket type is:" << getTicketType() << endl;
         cout << "The ticket price is:" << getPrice() << endl;
-        cout << "Row: " << rowNr << ", Seat: " << seatNr << endl;
+        cout << "Row: " << rowNr <<endl; 
+        cout<<"Seat:" << seatNr << endl;
     }
 
     string serialize() const override {
@@ -592,6 +601,7 @@ string getTicketType() const {
     
 
     Ticket(const Ticket& other) : eventId(other.eventId) {
+        
         this->ticketType = new char[strlen(other.ticketType) + 1];
         strcpy_s(this->ticketType, strlen(other.ticketType) + 1, other.ticketType);
         this->rowNr = other.rowNr;
@@ -599,12 +609,7 @@ string getTicketType() const {
         this->price = other.price;
     }
 
-    ~Ticket() {
-        if (this->ticketType != nullptr) {
-            delete[] this->ticketType;
-            this->ticketType = nullptr;
-        }
-    }
+    
 };
 
 
@@ -626,6 +631,57 @@ public:
     static vector<Ticket> loadTicketsFromBinaryFile(const string& filename);
     static void saveTicketsToBinaryFile(const vector<Ticket>& tickets, const string& filename);
 };
+
+vector<Ticket> TicketRepository::loadTicketsFromBinaryFile(const string& filename) {
+    vector<Ticket> tickets;
+    ifstream file(filename, ios::binary);
+
+    if (!file.is_open()) {
+        cerr << "Error opening binary file for reading." << endl;
+        return tickets;
+    }
+
+    string line;
+    int lineNumber = 0;  
+
+    while (getline(file, line)) {
+        ++lineNumber;
+        istringstream iss(line);
+        vector<string> tokens;
+        string token;
+
+        while (getline(iss, token, '|')) {
+            tokens.push_back(token);
+        }
+
+       
+        if (tokens.size() == 5) {
+            try {
+                int eventId = stoi(tokens[0]);
+                string ticketType = tokens[1];
+                int price = stoi(tokens[2]);
+                int rowNr = stoi(tokens[3].substr(4)); 
+                int seatNr = stoi(tokens[4].substr(5)); 
+
+                Ticket loadedTicket(eventId, const_cast<char*>(ticketType.c_str()), rowNr, seatNr, price);
+                tickets.push_back(loadedTicket);
+            }
+            catch (const exception& e) {
+                cerr << "Error loading ticket on line " << lineNumber << ": " << e.what() << endl;
+                cerr << "Problematic line: " << line << endl;  // Print the problematic line
+            }
+        }
+        else {
+            cerr << "Skipping invalid data on line " << lineNumber << " in binary file." << endl;
+        }
+    }
+
+    file.close();
+
+    cout << "Tickets loaded from binary file successfully." << endl;
+
+    return tickets;
+}
 
 void TicketRepository::saveTicketsToBinaryFile(const vector<Ticket>& tickets, const string& filename) {
     ofstream file(filename, ios::binary);
@@ -659,39 +715,6 @@ void TicketRepository::saveTicketsToBinaryFile(const vector<Ticket>& tickets, co
 }
 
 
-vector<Ticket> TicketRepository::loadTicketsFromBinaryFile(const string& filename) {
-    vector<Ticket> tickets;
-    ifstream file(filename, ios::binary);
-
-    if (!file.is_open()) {
-        cerr << "Error opening binary file for reading." << endl;
-        return tickets;
-    }
-
-    string line;
-    while (getline(file, line)) {
-        istringstream iss(line);
-        vector<string> tokens;
-        string token;
-
-        while (getline(iss, token, '|')) {
-            tokens.push_back(token);
-        }
-
-
-        if (tokens.size() == 100) {
-            Ticket ticket;
-            tickets.push_back(ticket);
-        }
-    }
-
-    file.close();
-
-    cout << "Tickets loaded from binary file successfully." << endl;
-
-    return tickets;
-}
-
 
 int Ticket::totalTickets = 0;
 int Location::totalEventLocations = 0;
@@ -716,9 +739,10 @@ int main(int argc, char* argv[]) {
 
         do {
             cout << "1. Add Ticket\n";
-            cout << "2. Display Tickets\n";
-            cout << "3. Save Tickets to File\n";
-            cout << "4. Quit\n";
+            cout << "2. Load tikcets from file\n";
+            cout << "3. Display Tickets\n";
+            cout << "4. Save Tickets to File\n";
+            cout << "5. Quit\n";
             cout << "Enter your choice: ";
             cin >> choice;
 
@@ -727,7 +751,7 @@ int main(int argc, char* argv[]) {
 
                 cout << "Adding a new ticket..." << endl;
                 string ticketType;
-                int price, rowNo, seatNo;
+                int price, rowNr, seatNr;
 
                 cout << "Enther the ticket type:";
                 cin >> ticketType;
@@ -736,38 +760,48 @@ int main(int argc, char* argv[]) {
                 cin >> price;
 
                 cout << "Enter the row number:";
-                cin >> rowNo;
+                cin >> rowNr;
 
                 cout << "Enter the seat number:";
-                cin >> seatNo;
+                cin >> seatNr;
 
                 try {
-                    Ticket newTicket(1, const_cast<char*>(ticketType.c_str()), rowNo, seatNo, price);
+                    Ticket newTicket(1, const_cast<char*>(ticketType.c_str()), rowNr, seatNr, price);
                     tickets.push_back(newTicket);
                     cout << "New ticket added successfully!" << endl;
                 }
                 catch (const exception& e) {
                     cerr << "Exception caught: " << e.what() << endl;
+                    cerr << "Terminating program." << endl;
+                    throw;
                 }
 
                 break;
             }
-
             case 2: {
+                string filename;
+                cout << "Enter filename : ";
+                cin >> filename;
+                tickets = TicketRepository::loadTicketsFromBinaryFile(filename);
+                break;
+            }
+
+            case 3: {
+                
                 PrintOperation printOperation;
                 for (const auto& ticket : tickets) {
                     printOperation.execute(ticket);
                 }
                 break;
             }
-            case 3: {
+            case 4: {
                 string filename;
                 cout << "Enter filename: ";
                 cin >> filename;
                 TicketRepository::saveTicketsToBinaryFile(tickets, filename);
                 break;
             }
-            case 4: {
+            case 5: {
                 cout << "Exiting program.\n";
                 break;
             }
@@ -777,8 +811,10 @@ int main(int argc, char* argv[]) {
 
                 return 0;
             }
-        } while (choice != 4);
+        } while (choice != 5);
 
+        for (const auto& loadedTicket : loadedTickets) {
+        }
     }
 
 }
